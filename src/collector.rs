@@ -28,9 +28,10 @@ type HistogramValue = ordered_float::NotNan<f64>;
 type Timestamp = u64;
 type HashMap<K, V> = std::collections::HashMap<K, V, ahash::RandomState>;
 
-const MAX_CW_METRICS_PER_CALL: usize = 20;
-const MAX_CLOUDWATCH_DIMENSIONS: usize = 10;
+const MAX_CW_METRICS_PER_CALL: usize = 1000;
+const MAX_CLOUDWATCH_DIMENSIONS: usize = 30;
 const MAX_HISTOGRAM_VALUES: usize = 150;
+const MAX_CW_METRICS_PUT_SIZE: usize = 800_000; // Docs say 1Mb but we set our max lower to be safe since we only have a heuristic
 const SEND_TIMEOUT: Duration = Duration::from_secs(4);
 
 pub struct Config {
@@ -248,8 +249,6 @@ async fn mk_emitter(
             .await;
     }
 }
-
-const MAX_CW_METRICS_PUT_SIZE: usize = 37_000; // Docs say 40k but we set our max lower to be safe since we only have a heuristic
 
 fn fit_metrics<'a>(metrics: impl IntoIterator<Item = &'a MetricDatum>) -> usize {
     let mut split = 0;
